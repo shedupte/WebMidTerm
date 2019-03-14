@@ -6,7 +6,7 @@
 * 
 *  Name: ___Tenzin Shedup__ Student ID: __120664180____ Date: ___03/08/19______
 *
-*  Online (Heroku) Link: _____https://quiet-mesa-75926.herokuapp.com/_______
+*  Online (Heroku) Link: _____https://cryptic-gorge-34461.herokuapp.com/sp_______
 *
 ********************************************************************************/
 
@@ -42,34 +42,6 @@ const config = {
     idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
     ssl: true
 };
-
-// const sequelize = new Sequelize(config.database, config.user, config.password, {
-//     host: config.host,
-//     dialect: 'postgres',
-//     port: 5432,
-//     dialectOptions: {
-//         ssl: true
-//     }
-// });
-
-// var Project = sequelize.define('Project', {
-//     title: Sequelize.STRING,
-//     description: Sequelize.TEXT
-// });
-
-// sequelize.sync().then(() => {
-
-//     // create a new "Project" and add it to the database
-//     Project.create({
-//         title: 'Project1',
-//         description: 'First Project'
-//     }).then((project) => {
-//         // you can now access the newly created Project via the variable project
-//         console.log("success!")
-//     }).catch((err) => {
-//         console.log("something went wrong!");
-//     });
-// });
 
 var pool = new Pool(config);
 
