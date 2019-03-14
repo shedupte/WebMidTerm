@@ -1,48 +1,77 @@
-var HTTP_PORT = process.env.PORT || 8080;
-var express = require("express");
+var express = require('express');
+const { Pool, Client } = require('pg')
 var app = express();
 
-// setup a 'route' to listen on the default url path
-app.get("/", (req, res) => {
-    res.send("Hello World!");
+const PORT = process.env.PORT || 3000;
+
+const client = new Client({
+  user: 'xgdveevvrfaffr',
+  host: 'ec2-23-23-173-30.compute-1.amazonaws.com',
+  database: 'd94984dv6smnsi',
+  password: '1fa80ac8efc7eea93461dba717fa152bb14ac04168348e6f3e891eecd486462b',
+  port: 5432,
+  ssl: true
 });
 
-// setup http server to listen on HTTP_PORT
-app.listen(HTTP_PORT);
+const pool = new Pool({
+  user: 'xgdveevvrfaffr',
+  host: 'ec2-23-23-173-30.compute-1.amazonaws.com',
+  database: 'd94984dv6smnsi',
+  password: '1fa80ac8efc7eea93461dba717fa152bb14ac04168348e6f3e891eecd486462b',
+  port: 5432,
+  ssl: true
+})
 
-const Sequelize = require('sequelize');
-
-// set up sequelize to point to our postgres database
-var sequelize = new Sequelize('d94984dv6smnsi', 'xgdveevvrfaffr', '1fa80ac8efc7eea93461dba717fa152bb14ac04168348e6f3e891eecd486462b', {
-    host: 'ec2-23-23-173-30.compute-1.amazonaws.com',
-    dialect: 'postgres',
-    port: 5432,
-    dialectOptions: {
-        ssl: true
+app.get('/', function (req, res, next) {
+  client.connect((err) => {
+    if (err)
+      throw err;
+    else {
+      client.query('SELECT * FROM Employee WHERE empid = $1', [1], (err, result) => {
+        if (err) {
+          res.status(400).send(err)
+        } else {
+          res.status(200).send(result.rows)
+        }
+      })
     }
+  })
 });
 
+app.get('/sp', (req, res, next) => {
+  client.connect((err) => {
+    if (err)
+      throw err;
+    else {
+      client.query('SELECT * from GetAllEmployee()', (err, result) => {
+        if (err) {
+          throw err
+          res.status(400).send(err)
+        } else {
+          res.status(200).send(result.rows);
+        }
+      })
+    }
+  })
+})
 
-// Define a "Project" model
+app.get('/pool', (req, res, next) => {
+  pool.connect((err, client, release) => {
+    if (err) {
+      console.log(`not able to get connection ${err}`)
+      res.status(400).send(err)
+    }
+    client.query('SELECT * from GetAllEmployee()', (err, result) => {
+      release()
+      if (err) {
+        console.log(err);
+        res.status(400).send(err);
+      }
+      res.status(200).send(result.rows);
+    })
+  })
+})
 
-var Project = sequelize.define('Project', {
-    title: Sequelize.STRING,
-    description: Sequelize.TEXT
-});
-
-// synchronize the Database with our models and automatically add the 
-// table if it does not exist
-
-sequelize.sync().then(function () {
-
-    // create a new "Project" and add it to the database
-    Project.create({
-        title: 'Project1',
-        description: 'First Project'
-    }).then(function (project) {
-        // you can now access the newly created Project via the variable project
-        console.log("success!")
-    }).catch(function (error) {
-        console.log("something went wrong!");
-    });
+app.listen(PORT, function () {
+  console.log('Server is running.. on Port 3000');
 });
